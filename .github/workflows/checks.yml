@@ -1,5 +1,4 @@
----
-name: Ckecks1
+name: Checks1
 on: [push, pull_request]
 jobs:
     test-lint:
@@ -9,11 +8,9 @@ jobs:
             - name: Log in to Docker Hub
               uses: docker/login-action@v2
               with:
-                username: ${{ secrets.DOCKERHUB_USER }}
+                username: ${{ secrets.DOCKERHUB_USER }}  # souvent DOCKERHUB_USERNAME est utilisé
                 password: ${{ secrets.DOCKERHUB_TOKEN }}
             - name: checkout
               uses: actions/checkout@v3
             - name: Test
               run: docker compose run --rm app sh -c 'python manage.py test'
-           
-                    
