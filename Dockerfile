@@ -17,12 +17,15 @@ ARG DEV=false
 ##D'où ici il se passe qu'il s'agit d'une seule commande
 RUN python -m venv /py && \
     /py/bin/pip install --upgrade pip && \ 
+    apk add --update --no-cache postgresql-client && \
+    apk add --no-cache --virtual .tmp-build-deps \
+       build-base postgresql-dev musl-dev && \
     /py/bin/pip install -r /tmp/requirements.txt && \
     if [ $DEV = "true" ]; \
        then /py/bin/pip install -r /tmp/requirement.dev.txt  ; \
     fi && \    
-    rm -rf /tmp/requirements.txt && \
-    rm -rf /tmp/requirement.dev.txt && \
+    rm -rf /tmp && \
+    apk del .tmp-build-deps && \
     adduser \
        --disabled-password  \
        --no-create-home \
