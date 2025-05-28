@@ -29,5 +29,8 @@ class AdminTest(TestCase):
         res=self.client.get(url)
         self.assertEqual(res.status_code,200)
 
+    def test_create_user_page(self):
+            pass
+
 
 
