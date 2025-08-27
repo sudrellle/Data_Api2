@@ -41,10 +41,12 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'drf_spectacular',
-    'users'
+    'users',
+    'corsheaders'
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -53,6 +55,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+CORS_ALLOW_ALL_ORIGINS = True
 
 ROOT_URLCONF = 'app.urls'
 
@@ -142,4 +145,30 @@ REST_FRAMEWORK = {
     ]
 }
 
+# ==========================
+# Paramètres EMAIL
+# ==========================
 
+
+# Email
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'ruthesthermban@gmail.com'          # ton Gmail
+EMAIL_HOST_PASSWORD = 'btgsoeasmjrsbbnx'   # mot de passe d'application Gmail
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
+# Pour tests console (optionnel)
+# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+# Frontend (pour générer le lien)
+FRONTEND_URL = 'http://localhost:3000'
+
+# Djoser settings (optionnel si tu l'utilises)
+DJOSER = {
+    'PASSWORD_RESET_CONFIRM_URL': 'password-reset/confirm/{uid}/{token}',
+    'SEND_ACTIVATION_EMAIL': False,
+    'SEND_CONFIRMATION_EMAIL': False,
+    'SEND_PASSWORD_RESET_EMAIL': True,
+}

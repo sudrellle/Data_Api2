@@ -72,12 +72,12 @@ class User(AbstractBaseUser, PermissionsMixin):
     genre = models.CharField(
         max_length=1, 
         choices=choix_genre, 
-        blank=True,
-        null=True  # Permet NULL pour les superusers
+        blank=False,
+        null=True
+          
     )
     date_naissance = models.DateField(
-        blank=True, 
-        null=True,  # Permet NULL pour les superusers
+       
         validators=[validate_age]  # Ajouter la validation d'âge
     )
 

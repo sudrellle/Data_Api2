@@ -7,6 +7,12 @@ from django.core.exceptions import ValidationError as DjangoValidationError
 from rest_framework import serializers
 from datetime import date
 
+from django.contrib.auth import get_user_model
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.http import urlsafe_base64_decode
+from django.core.exceptions import ValidationError as DjangoValidationError
+from django.contrib.auth.password_validation import validate_password
+
 class UserSerializer(serializers.ModelSerializer):
     """Serializer pour les objets utilisateur"""
     
@@ -119,3 +125,52 @@ class AuthTokenSerializer(serializers.Serializer):
             
         attrs['user'] = user
         return attrs
+    
+
+
+
+User = get_user_model()
+
+class ProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['email', 'name']
+
+
+class PasswordResetRequestSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+
+    # Pas de fuite d’info : on ne valide pas l’existence ici.
+    # La vue répondra 200 dans tous les cas.
+
+
+class PasswordResetConfirmSerializer(serializers.Serializer):
+    uid = serializers.CharField()
+    token = serializers.CharField()
+    new_password = serializers.CharField(min_length=8, write_only=True)
+    re_new_password = serializers.CharField(min_length=8, write_only=True)
+
+    def validate(self, attrs):
+        if attrs["new_password"] != attrs["re_new_password"]:
+            raise serializers.ValidationError({"re_new_password": "Les mots de passe ne correspondent pas."})
+        # Validation Django (force, blacklist, etc.)
+        try:
+            validate_password(attrs["new_password"])
+        except DjangoValidationError as e:
+            raise serializers.ValidationError({"new_password": list(e.messages)})
+        return attrs
+
+    def save(self, **kwargs):
+        try:
+            uid = urlsafe_base64_decode(self.validated_data["uid"]).decode()
+            user = User.objects.get(pk=uid)
+        except Exception:
+            raise serializers.ValidationError({"uid": "UID invalide."})
+
+        token = self.validated_data["token"]
+        if not default_token_generator.check_token(user, token):
+            raise serializers.ValidationError({"token": "Token invalide ou expiré."})
+
+        user.set_password(self.validated_data["new_password"])
+        user.save()
+        return user    
